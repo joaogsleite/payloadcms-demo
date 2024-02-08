@@ -24,6 +24,8 @@ import { Footer } from './globals/Footer'
 import { Header } from './globals/Header'
 import { Settings } from './globals/Settings'
 import MyIcon from './components/MyIcon'
+import { S3Client } from '@aws-sdk/client-s3'
+import s3Upload from './plugins/s3'
 
 const generateTitle: GenerateTitle = () => {
   return 'My Website'
@@ -93,6 +95,13 @@ export default buildConfig({
     },
   ],
   plugins: [
+    s3Upload(new S3Client({
+      region: process.env.AWS_REGION,
+      credentials: {
+        accessKeyId: process.env.AWS_KEY,
+        secretAccessKey: process.env.AWS_SECRET,
+      },
+    })),
     redirects({
       collections: ['pages', 'posts'],
     }),

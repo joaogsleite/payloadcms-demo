@@ -1,11 +1,22 @@
 import { slateEditor } from '@payloadcms/richtext-slate'
-import path from 'path'
 import type { CollectionConfig } from 'payload/types'
 
-export const Media: CollectionConfig = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Media: CollectionConfig & { upload: { s3: any } } = {
   slug: 'media',
   upload: {
-    staticDir: path.resolve(__dirname, '../../../media'),
+    staticURL: '/assets',
+    staticDir: 'assets',
+    disableLocalStorage: true,
+    s3: {
+      bucket: 'payloadcms-demo',
+      prefix: 'media',
+      commandInput: {
+        ACL: 'public-read',  
+      },
+    },
+    adminThumbnail: ({ doc }) =>
+      `https://payloadcms-demo.s3.eu-west-2.amazonaws.com/media/${doc.filename}`,
   },
   access: {
     read: () => true,
@@ -24,6 +35,22 @@ export const Media: CollectionConfig = {
           elements: ['link'],
         },
       }),
+    },
+    {
+      name: 'url',
+      type: 'text',
+      access: {
+        create: () => false,
+      },
+      admin: {
+        disabled: true,
+      },
+      hooks: {
+        afterRead: [
+          ({ data: doc }) =>
+            `https://payloadcms-demo.s3.eu-west-2.amazonaws.com/media/${doc.filename}`,
+        ],
+      },
     },
   ],
 }
